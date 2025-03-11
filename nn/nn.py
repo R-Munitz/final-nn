@@ -114,7 +114,7 @@ class NeuralNetwork:
         #transpose W_curr
         W_curr = W_curr.T
         #calculate Z_curr
-        Z_curr = np.dot(W_curr, A_prev) + b_curr  #shape error
+        Z_curr = np.dot(W_curr, A_prev) + b_curr  #shape error resolved?
 
         # call activation function
         if activation == 'sigmoid':
@@ -217,7 +217,7 @@ class NeuralNetwork:
         #dA_prev = W_curr.T . dZ_curr
 
         #calculate m - number of samples
-        m = A_prev.shape[0] #1 or 0? batch_size, input_dim? #test - changed from 1-0
+        m = A_prev.shape[0] #double check it's 0
 
         #calculate dZ_curr
         if activation_curr == 'sigmoid':
@@ -231,12 +231,10 @@ class NeuralNetwork:
 
         
         #calculate dW_curr
-        dW_curr = np.dot(dZ_curr.T, A_prev) / m
+        dW_curr = np.dot(dZ_curr, A_prev.T) / m  #possibly switched transpose A_prev instead?
 
         #testing
         assert W_curr.shape == dW_curr.shape
-      
-    
     
 
         #calculate db_curr
