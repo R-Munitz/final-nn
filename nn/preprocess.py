@@ -34,25 +34,28 @@ def sample_seqs(seqs: List[str], labels: List[bool]) -> Tuple[List[str], List[bo
     if num_pos == 0 or num_neg == 0:
         return [],[]
 
+    #resample smaller class to match larger class
+    num_samples = max(num_pos, num_neg)
+    
     # if more positive samples than negative samples
     if num_pos > num_neg:
         #sample negative samples with replacement
-        neg_seqs = list(np.random.choice(neg_seqs, size=num_pos, replace=True))
+        neg_seqs = list(np.random.choice(neg_seqs, size=num_samples, replace=True))
         
     else: #more negative samples than positive samples
         # sample positive samples with replacement
-        pos_seqs = list(np.random.choice(pos_seqs, size=num_neg, replace=True))
+        pos_seqs = list(np.random.choice(pos_seqs, size=num_samples, replace=True))
     
     
     #combine positive and negative samples
     sampled_seqs = pos_seqs + neg_seqs
     num_samples = len(sampled_seqs)
-    sampled_labels = [True] * num_samples + [False] * num_samples
+    sampled_labels = [True] * len(pos_seqs) + [False] * len(neg_seqs)
 
     #shuffle the samples - ensure random order
     combined = list(zip(sampled_seqs, sampled_labels))
     np.random.shuffle(combined)
-    
+
     sampled_seqs, sampled_labels = zip(*combined)
 
     return list(sampled_seqs), list(sampled_labels)

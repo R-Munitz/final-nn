@@ -4,6 +4,7 @@ import pandas as pd
 from nn.nn import NeuralNetwork as nn
 from nn.preprocess import sample_seqs, one_hot_encode_seqs
 from sklearn.preprocessing import StandardScaler
+import pytest
 
 
 def test_single_forward():
@@ -124,7 +125,7 @@ def test_binary_cross_entropy():
     loss = test_model._binary_cross_entropy(y_true, y_hat)
 
     #assert loss > 0
-    assert loss == 0.164252033486018
+    assert loss == pytest.approx(0.1446)
 
     pass
 
@@ -149,6 +150,9 @@ def test_binary_cross_entropy_backprop():
 
     #assert output is correct
     assert dA.shape == y_true.shape  #correct dimensions
+    assert np.allclose(dA, np.array([[-1.11111111,  1.11111111, -1.25]])) #correct values
+    
+
 
     pass
 
@@ -171,7 +175,7 @@ def test_mean_squared_error():
     loss = test_model._mean_squared_error(y_true, y_hat)
 
     #assert loss > 0
-    assert loss == 0.03333333333333333
+    assert loss == pytest.approx(0.03)
 
     pass
 
@@ -195,6 +199,8 @@ def test_mean_squared_error_backprop():
 
     #assert output is correct
     assert dA.shape == y_true.shape  #correct dimensions
+    assert np.allclose(dA, np.array([[-0.2, 0.4, -0.4]])) #correct values
+    
 
     pass
 
@@ -224,5 +230,6 @@ def test_one_hot_encode_seqs():
     assert encodings.shape == expected_output_shape
 
     #check explict encoding is as expected
+    #TO DO
 
     pass
