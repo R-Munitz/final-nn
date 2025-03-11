@@ -115,7 +115,12 @@ class NeuralNetwork:
         Z_curr = np.dot(W_curr, A_prev) + b_curr  
 
         # call activation function
-        A_curr = activation(Z_curr) 
+        if activation == 'sigmoid':
+            A_curr = self._sigmoid(Z_curr)
+        elif activation == 'relu':
+            A_curr = self._relu(Z_curr)
+        else:
+            raise ValueError("Activation function not supported")
 
         return A_curr, Z_curr
     
@@ -145,8 +150,8 @@ class NeuralNetwork:
         for idx, layer in enumerate(self.arch):
             layer_idx = idx + 1
             #get W_curr, b_curr, A_prev, activation
-            W_curr = self.param_dict['W' + str(layer_idx)]
-            b_curr = self.param_dict['b' + str(layer_idx)] 
+            W_curr = self._param_dict['W' + str(layer_idx)]
+            b_curr = self._param_dict['b' + str(layer_idx)] 
             activation = layer['activation']
             #activation = self.arch[layer_idx]['activation']
 
@@ -273,10 +278,10 @@ class NeuralNetwork:
                 dA_curr = dA_prev
             else:
                 #get current Z, A, and activation function
-                W_curr = self.param_dict['W' + str(layer_idx)]
-                b_curr = self.param_dict['b' + str(layer_idx)]
-                Z_curr = self.param_dict['Z' + str(layer_idx)]
-                A_prev = self.param_dict['A' + str(layer_idx-1)] 
+                W_curr = self._param_dict['W' + str(layer_idx)]
+                b_curr = self._param_dict['b' + str(layer_idx)]
+                Z_curr = self._param_dict['Z' + str(layer_idx)]
+                A_prev = self._param_dict['A' + str(layer_idx-1)] 
                 activation_curr = layer['activation']
                 #activation_curr = self.arch[layer_idx]['activation']
 
@@ -307,8 +312,8 @@ class NeuralNetwork:
             layer_idx = idx + 1
 
             #get current W, b, and gradients
-            W_curr = self.param_dict['W' + str(layer_idx)]
-            b_curr = self.param_dict['b' + str(layer_idx)]
+            W_curr = self._param_dict['W' + str(layer_idx)]
+            b_curr = self._param_dict['b' + str(layer_idx)]
             dW_curr = grad_dict['dW' + str(layer_idx)]
             db_curr = grad_dict['db' + str(layer_idx)]
 
@@ -317,8 +322,8 @@ class NeuralNetwork:
             b_curr = b_curr - self._lr * db_curr
 
             #store updated W and b
-            self.param_dict['W' + str(layer_idx)] = W_curr
-            self.param_dict['b' + str(layer_idx)] = b_curr
+            self._param_dict['W' + str(layer_idx)] = W_curr
+            self._param_dict['b' + str(layer_idx)] = b_curr
         pass
 
     def fit(

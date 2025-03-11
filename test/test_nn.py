@@ -105,10 +105,23 @@ def test_predict():
 
 def test_binary_cross_entropy():
 
+    nn_arch = [
+        {"input_dim": 4, "output_dim": 3, "activation": "relu"}]
+    
+    test_model  = nn(
+    nn_arch=nn_arch,
+    lr=0.01,           # learning rate
+    seed=42,            # random seed
+    batch_size=1,      # batch size
+    epochs=10,         # number of epochs
+    loss_function="binary_cross_entropy" # loss function
+    )
+
     y_true = np.array([[1, 0, 1]])
     y_hat = np.array([[0.9, 0.1, 0.8]])
+
     
-    loss = nn._binary_cross_entropy(y_true, y_hat)
+    loss = test_model._binary_cross_entropy(y_true, y_hat)
 
     #assert loss > 0
     assert loss == 0.164252033486018
@@ -116,10 +129,23 @@ def test_binary_cross_entropy():
     pass
 
 def test_binary_cross_entropy_backprop():
+
+    nn_arch = [
+        {"input_dim": 4, "output_dim": 3, "activation": "relu"}]
+    
+    test_model  = nn(
+    nn_arch=nn_arch,
+    lr=0.01,           # learning rate
+    seed=42,            # random seed
+    batch_size=1,      # batch size
+    epochs=10,         # number of epochs
+    loss_function="binary_cross_entropy" # loss function
+    )
+    
     y_true = np.array([[1, 0, 1]])
     y_hat = np.array([[0.9, 0.1, 0.8]])
 
-    dA = nn._binary_cross_entropy_backprop(y_true, y_hat)
+    dA = test_model._binary_cross_entropy_backprop(y_true, y_hat)
 
     #assert output is correct
     assert dA.shape == y_true.shape  #correct dimensions
@@ -127,10 +153,22 @@ def test_binary_cross_entropy_backprop():
     pass
 
 def test_mean_squared_error():
+    nn_arch = [
+        {"input_dim": 4, "output_dim": 3, "activation": "relu"}]
+    
+    test_model  = nn(
+    nn_arch=nn_arch,
+    lr=0.01,           # learning rate
+    seed=42,            # random seed
+    batch_size=1,      # batch size
+    epochs=10,         # number of epochs
+    loss_function="mean_squared_error" # loss function
+    )
+
     y_true = np.array([[1, 0, 1]])
     y_hat = np.array([[0.9, 0.2, 0.8]])
 
-    loss = nn._mean_squared_error(y_true, y_hat)
+    loss = test_model._mean_squared_error(y_true, y_hat)
 
     #assert loss > 0
     assert loss == 0.03333333333333333
@@ -138,10 +176,22 @@ def test_mean_squared_error():
     pass
 
 def test_mean_squared_error_backprop():
+    nn_arch = [
+        {"input_dim": 4, "output_dim": 3, "activation": "relu"}]
+    
+    test_model  = nn(
+    nn_arch=nn_arch,
+    lr=0.01,           # learning rate
+    seed=42,            # random seed
+    batch_size=1,      # batch size
+    epochs=10,         # number of epochs
+    loss_function="mean_squared_error" # loss function
+    )
+
     y_true = np.array([[1, 0, 1]])
     y_hat = np.array([[0.9, 0.2, 0.8]])
 
-    dA = nn._mean_squared_error_backprop(y_true, y_hat)
+    dA = test_model._mean_squared_error_backprop(y_true, y_hat)
 
     #assert output is correct
     assert dA.shape == y_true.shape  #correct dimensions
@@ -166,8 +216,8 @@ def test_one_hot_encode_seqs():
     #encode a couple of simple sequences
     sequences = ["ATGC", "CGTA"] 
 
-    expected_output_shape = (2, 4, 4) # 2 sequences, 4 bases each, 4 nucleotides
-
+    expected_output_shape = (2 * 4 * 4,)  #flattened one-hot encoding of 2 sequences, 4 bases each, 4 nucleotides
+   
     encodings = one_hot_encode_seqs(sequences)
 
     #assert output is correct
