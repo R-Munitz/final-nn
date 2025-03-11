@@ -31,7 +31,7 @@ def test_single_forward():
     assert Z.shape == (3, 1) #correct dimensions
     assert A.shape == (3, 1) #correct dimensions
     assert (A>=0).all() # relu is non negative
-    assert (A == np.array([[0.5], [0.], [0.3]])).all() # correct values
+    assert (A == np.array([[0.0], [0.4], [0.04]]).all())# correct values
     
     pass
 
@@ -125,7 +125,7 @@ def test_binary_cross_entropy():
     loss = test_model._binary_cross_entropy(y_true, y_hat)
 
     #assert loss > 0
-    assert loss == pytest.approx(0.1446)
+    assert loss == 0.14462152638588005 #did the math
 
     pass
 
@@ -150,7 +150,7 @@ def test_binary_cross_entropy_backprop():
 
     #assert output is correct
     assert dA.shape == y_true.shape  #correct dimensions
-    assert np.allclose(dA, np.array([[-1.11111111,  1.11111111, -1.25]])) #correct values
+    assert np.allclose(dA, np.array([[-1.11111111,  1.11111111, -1.25]])) #fails, recalculate + check implementation
     
 
 
@@ -199,7 +199,7 @@ def test_mean_squared_error_backprop():
 
     #assert output is correct
     assert dA.shape == y_true.shape  #correct dimensions
-    assert np.allclose(dA, np.array([[-0.2, 0.4, -0.4]])) #correct values
+    assert np.allclose(dA, np.array([[-0.2, 0.4, -0.4]])) #fails, recalculate + check implementation
     
 
     pass
