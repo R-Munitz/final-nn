@@ -111,8 +111,10 @@ class NeuralNetwork:
         # Z (l+1) = W(l) * A(l) + b(l)
         # A (l+1) = activation(Z(l+1))
 
+        #transpose W_curr
+        W_curr = W_curr.T
         #calculate Z_curr
-        Z_curr = np.dot(W_curr, A_prev) + b_curr  
+        Z_curr = np.dot(W_curr, A_prev) + b_curr  #shape error
 
         # call activation function
         if activation == 'sigmoid':
@@ -215,7 +217,7 @@ class NeuralNetwork:
         #dA_prev = W_curr.T . dZ_curr
 
         #calculate m - number of samples
-        m = A_prev.shape[1] #1 or 0? batch_size, input_dim?
+        m = A_prev.shape[0] #1 or 0? batch_size, input_dim? #test - changed from 1-0
 
         #calculate dZ_curr
         if activation_curr == 'sigmoid':
@@ -226,15 +228,22 @@ class NeuralNetwork:
             raise ValueError("Activation function not supported")
         
         dZ_curr = dA_curr * activation_backprop(dA_curr,Z_curr) 
-    
+
+        
         #calculate dW_curr
-        dW_curr = np.dot(dZ_curr, A_prev.T) / m
+        dW_curr = np.dot(dZ_curr.T, A_prev) / m
+
+        #testing
+        assert W_curr.shape == dW_curr.shape
+      
+    
+    
 
         #calculate db_curr
         db_curr = np.sum(dZ_curr, axis=1, keepdims=True) / m
 
         #calculate dA_prev
-        dA_prev = np.dot(W_curr.T, dZ_curr)
+        dA_prev = np.dot(W_curr.T, dZ_curr) #transpose weights?
 
         return dA_prev, dW_curr, db_curr
     
