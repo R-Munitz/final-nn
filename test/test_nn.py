@@ -31,7 +31,7 @@ def test_single_forward():
     assert Z.shape == (3, 1) #correct dimensions
     assert A.shape == (3, 1) #correct dimensions
     assert (A>=0).all() # relu is non negative
-    assert (A == np.array([[0.0], [0.4], [0.04]]).all())# correct values
+    assert (A == np.array([[0.0], [0.4], [0.04]])).all() # correct values
     
     pass
 
@@ -150,7 +150,7 @@ def test_binary_cross_entropy_backprop():
 
     #assert output is correct
     assert dA.shape == y_true.shape  #correct dimensions
-    assert np.allclose(dA, np.array([[-1.11111111,  1.11111111, -1.25]])) #fails, recalculate + check implementation
+    assert np.allclose(dA, np.array([[-1.11111111,  1.11111111, -1.25]])) #passes?
     
 
 
