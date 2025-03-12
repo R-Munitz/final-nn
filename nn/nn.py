@@ -111,14 +111,9 @@ class NeuralNetwork:
         # Z (l+1) = W(l) * A(l) + b(l)
         # A (l+1) = activation(Z(l+1))
 
-        #transpose W_curr
-        #W_curr = W_curr.T # this failed
-
-        #transpose A_prev -testing 
-        A_prev = A_prev.T 
 
         #calculate Z_curr
-        Z_curr = np.dot(W_curr, A_prev) + b_curr  #shape error resolved?
+        Z_curr = np.dot(W_curr, A_prev) + b_curr  #shape error resolved? if not, try transpose A_prev
 
         # call activation function
         if activation == 'sigmoid':
