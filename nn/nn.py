@@ -156,7 +156,7 @@ class NeuralNetwork:
             activation = layer['activation']
             
             #call single forward pass
-            A, Z = self._single_forward(W_curr, b_curr, A_prev.T, activation) #transpose A_prev here, see if this works
+            A, Z = self._single_forward(W_curr, b_curr, A_prev, activation) 
 
             #store Z and A in cache
             cache['Z' + str(layer_idx)] = Z
