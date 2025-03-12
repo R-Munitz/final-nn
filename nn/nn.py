@@ -145,8 +145,7 @@ class NeuralNetwork:
         cache = {}
 
         #initialize A
-        #A_prev = X.T #transpose X to match shape of A  #? 
-        A_prev = X #testing not transposing this
+        A_prev = X #input layer
         
         #loop through each layer
         for idx, layer in enumerate(self.arch):
@@ -155,10 +154,9 @@ class NeuralNetwork:
             W_curr = self._param_dict['W' + str(layer_idx)]
             b_curr = self._param_dict['b' + str(layer_idx)] 
             activation = layer['activation']
-            #activation = self.arch[layer_idx]['activation']
-
+            
             #call single forward pass
-            A, Z = self._single_forward(W_curr, b_curr, A_prev, activation)
+            A, Z = self._single_forward(W_curr, b_curr, A_prev.T, activation) #transpose A_prev here, see if this works
 
             #store Z and A in cache
             cache['Z' + str(layer_idx)] = Z
@@ -217,7 +215,7 @@ class NeuralNetwork:
         #dA_prev = W_curr.T . dZ_curr
 
         #calculate m - number of samples
-        m = A_prev.shape[0] #double check it's 0
+        m = A_prev.shape[0] 
 
         #calculate dZ_curr
         if activation_curr == 'sigmoid':
@@ -382,7 +380,7 @@ class NeuralNetwork:
                 y_batch = y_train[i:i + self._batch_size]
 
                 #call forward pass
-                y_hat, cache = self.forward(X_batch)
+                y_hat, cache = self.forward(X_batch) #transpose y_hat?
 
                 #calculate loss for training set
                 if self._loss_func == 'binary_cross_entropy':
