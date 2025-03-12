@@ -31,7 +31,7 @@ def test_single_forward():
     assert Z.shape == (3, 1) #correct dimensions
     assert A.shape == (3, 1) #correct dimensions
     assert (A>=0).all() # relu is non negative
-    assert (A == np.array([[0.0], [0.4], [0.04]])).all() # correct values
+    assert np.allclose(A, np.array([[0.0], [0.4], [0.04]])) # correct values
     
     pass
 
