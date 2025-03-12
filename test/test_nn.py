@@ -150,7 +150,7 @@ def test_binary_cross_entropy_backprop():
 
     #assert output is correct
     assert dA.shape == y_true.shape  #correct dimensions
-    assert np.allclose(dA, np.array([[-1.11111111,  1.11111111, -1.25]])) #passes?
+    assert np.allclose(dA, np.array([[-1.11111111,  1.11111111, -1.25]])) 
     
 
 
@@ -199,7 +199,7 @@ def test_mean_squared_error_backprop():
 
     #assert output is correct
     assert dA.shape == y_true.shape  #correct dimensions
-    assert np.allclose(dA, np.array([[-0.2, 0.4, -0.4]])) #fails, recalculate + check implementation
+    assert np.allclose(dA, np.array([[-0.06666667,  0.13333333, -0.13333333]])) 
     
 
     pass

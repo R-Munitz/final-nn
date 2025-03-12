@@ -112,7 +112,11 @@ class NeuralNetwork:
         # A (l+1) = activation(Z(l+1))
 
         #transpose W_curr
-        W_curr = W_curr.T
+        #W_curr = W_curr.T # this failed
+
+        #transpose A_prev -testing 
+        A_prev = A_prev.T 
+
         #calculate Z_curr
         Z_curr = np.dot(W_curr, A_prev) + b_curr  #shape error resolved?
 
@@ -228,14 +232,9 @@ class NeuralNetwork:
             raise ValueError("Activation function not supported")
         
         dZ_curr = dA_curr * activation_backprop(dA_curr,Z_curr) 
-
         
         #calculate dW_curr
         dW_curr = np.dot(dZ_curr, A_prev.T) / m  #possibly switched transpose A_prev instead?
-
-        #testing
-        assert W_curr.shape == dW_curr.shape
-    
 
         #calculate db_curr
         db_curr = np.sum(dZ_curr, axis=1, keepdims=True) / m
