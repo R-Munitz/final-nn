@@ -145,7 +145,8 @@ class NeuralNetwork:
         cache = {}
 
         #initialize A
-        A_prev = X.T #transpose X to match shape of A  #?
+        #A_prev = X.T #transpose X to match shape of A  #? 
+        A_prev = X #testing not transposing this
         
         #loop through each layer
         for idx, layer in enumerate(self.arch):
