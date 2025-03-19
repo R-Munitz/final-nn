@@ -120,14 +120,12 @@ class NeuralNetwork:
 
 
         #calculate Z_curr
-        #Z_curr = np.dot(W_curr, A_prev.T) + b_curr  #log: works the first time, fails the second
-
-        #testing - works
         Z_curr = np.dot(A_prev, W_curr.T) + b_curr.T 
 
-        #take 2
-        #Z_curr = np.dot(W_curr, A_prev)+ b_curr - fails
+        #I
+        #Z_curr = W_curr @ A_prev + b_curr 
 
+       
         #debugging
         print(f"shapes in single forward pass, after Z_curr calc, before activation func, Z_curr")
         print(f"Z_curr shape: {Z_curr.shape} # (batch_size, output_neuron)")
@@ -201,12 +199,7 @@ class NeuralNetwork:
             cache['Z' + str(layer_idx)] = Z
             cache['A' + str(layer_idx)] = A
 
-            #update A_prev for next layer
-            #A_prev = A
-
-            #testing
             A_curr = A
-
 
         return A_curr, cache
     
@@ -258,10 +251,8 @@ class NeuralNetwork:
         #4. gradient of loss with respect to A_prev
         #dA_prev = W_curr.T . dZ_curr
 
-        #calculate m - number of samples
-        #m = A_prev.shape[0]      #testing
+      
 
-    
 
         #calculate dZ_curr
         if activation_curr == 'sigmoid':
@@ -272,27 +263,23 @@ class NeuralNetwork:
             raise ValueError("Activation function not supported")
         
         #calculate dA_prev
-        #dA_prev = np.dot(W_curr.T, dZ_curr) #transpose weights?
-
-        #testing-works
         dA_prev = np.dot(dZ_curr, W_curr) 
+
+        #I
+        #dA_prev = W_curr.T @ dZ_curr
 
 
         #calculate dW_curr
-        #dW_curr = np.dot(dZ_curr, A_prev.T) / m  
-
-        #testing-works
         dW_curr = np.dot(dZ_curr.T, A_prev) # works, correct shape
 
+        #I
+        #dW_curr = np.dot(dZ_curr, A_prev.T) 
+
         #calculate db_curr
-        #db_curr = np.sum(dZ_curr, axis=1, keepdims=True) / m
-
-        #testing-works
-        #db_curr = np.sum(dZ_curr, axis=0) / m
-
-        #testing
-        #db_curr = dZ_curr
         db_curr = np.sum(dZ_curr, axis=0, keepdims=True) 
+
+        #I
+        #db_curr = dZ_curr
 
         #debugging
         print(f"shapes at the end of single backprop:")
@@ -324,6 +311,12 @@ class NeuralNetwork:
         """
         #initialize grad_dict
         grad_dict = {}
+
+        #debugging
+        print(f"shapes in backprop, y, y_hat")
+        print(f"y shape: {y.shape} # (batch_size, output_neuron)")
+        print(f"y_hat shape: {y_hat.shape} # (batch_size, output_neuron)")
+
 
         #calculate loss gradient for output layer
         if self._loss_func == 'binary_cross_entropy':
@@ -385,61 +378,15 @@ class NeuralNetwork:
             #debugging
             print(f"current layer in update params: {layer_idx}")
 
-            #get current W, b, and gradients
-            W_curr = self._param_dict['W' + str(layer_idx)]
-            b_curr = self._param_dict['b' + str(layer_idx)]
+            #uodate params
+            self._param_dict[f"W{layer_idx}"] -= self._lr * np.mean(grad_dict[f"W{layer_idx}"], axis=0)
+            self._param_dict[f"b{layer_idx}"] -= self._lr * np.mean((grad_dict[f"b{layer_idx}"].reshape(-1,1)), axis=0)
 
-            dW_curr = grad_dict['W' + str(layer_idx)]
-            db_curr = grad_dict['b' + str(layer_idx)]
-
-            #debugging
-            print(f"current b_curr {b_curr.shape}, current db_curr {db_curr.shape}")
-            print(f"reshaped db curr {db_curr.reshape(-1, 1).shape}")
-
-            #calculate updated W and b, gradient descent, use learning rate
-            W_curr = W_curr - self._lr * dW_curr
-            #b_curr = b_curr - self._lr * db_curr
-
-            #testing - works but incorrect logic?
-            b_curr = b_curr - self._lr * db_curr.reshape(-1, 1)
-
-            #store updated W and b
-            self._param_dict['W' + str(layer_idx)] = W_curr
-            self._param_dict['b' + str(layer_idx)] = b_curr
-
-            #this is cleaner but was giving shape errors
-            #testing
-            #self._param_dict[f"W{layer_idx}"] -= self._lr * np.mean(grad_dict[f"W{layer_idx}"], axis=0)
-            #self._param_dict[f"b{layer_idx}"] -= self._lr * np.mean(grad_dict[f"b{layer_idx}"], axis=0)
-
-            '''
             
-            #get current W, b, and gradients
-            W_curr = self._param_dict['W' + str(layer_idx)]
-            b_curr = self._param_dict['b' + str(layer_idx)]
-            dW_curr = grad_dict['dW' + str(layer_idx)]
-            db_curr = grad_dict['db' + str(layer_idx)]
+            #I
+            #self._param_dict[f"b{layer_idx}"] -= self._lr * np.mean((grad_dict[f"b{layer_idx}"]), axis=0)
 
-            #debugging
-            print(f"current b_curr {b_curr.shape}, current db_curr {db_curr.shape}")
-            print(f"reshaped db curr {db_curr.reshape(-1, 1).shape}")
 
-            #calculate updated W and b, gradient descent, use learning rate
-            W_curr = W_curr - self._lr * dW_curr
-            #b_curr = b_curr - self._lr * db_curr
-
-            #testing - works but incorrect logic?
-            b_curr = b_curr - self._lr * db_curr.reshape(-1, 1)
-
-            #store updated W and b
-            self._param_dict['W' + str(layer_idx)] = W_curr
-            self._param_dict['b' + str(layer_idx)] = b_curr
-
-            #debugging
-            print(f"updated W and b for layer {layer_idx}")
-            print(f"W_curr shape: {W_curr.shape} # (output_neuron, features/input neuron)")
-            print(f"b_curr shape: {b_curr.shape} # (output_neuron, )")
-            '''
         pass
 
     def fit(
@@ -480,8 +427,6 @@ class NeuralNetwork:
         per_epoch_loss_train = []
         per_epoch_loss_val = []
 
-        #calculate number of samples
-        #m = X_train.shape[0] -testing
 
         #loop through each epoch
         for epoch in range(self._epochs):
@@ -493,6 +438,12 @@ class NeuralNetwork:
                 #call forward pass
                 y_hat, cache = self.forward(X_train_batch)
 
+
+                #debugging
+                print("calling backprop")
+                print(f"y_train_batch shape: {y_train_batch.shape} # (batch_size, output_neuron)")
+                print(f"y_hat shape: {y_hat.shape} # (batch_size, output_neuron)")
+
                 #call backprop
                 grad_dict = self.backprop(y_train_batch, y_hat, cache)
 
@@ -502,6 +453,12 @@ class NeuralNetwork:
             #calculate loss for epoch
             y_train_pred = self.predict(X_train)
             y_val_pred = self.predict(X_val)
+
+            #debugging
+            print("Y_train_pred")
+            print(y_train_pred) 
+            print("Y_val_pred")
+            print(y_val_pred)
 
             if self._loss_func == 'binary_cross_entropy':
                 epoch_loss_train = self._binary_cross_entropy(y_train, y_train_pred)
@@ -516,64 +473,6 @@ class NeuralNetwork:
             per_epoch_loss_train.append(epoch_loss_train)
             per_epoch_loss_val.append(epoch_loss_val)
 
-        return per_epoch_loss_train, per_epoch_loss_val
-                
-
-        '''
-        #loop through each epoch
-        for epoch in range(self._epochs):
-            #initialize loss variables
-            epoch_loss_train = 0
-            epoch_loss_val = 0
-
-            #loop through each mini-batch
-            for i in range (0, m, self._batch_size):
-
-                print("at mini batch")
-                
-                #get mini batch from training set
-                X_batch = X_train[i:i + self._batch_size]
-                y_batch = y_train[i:i + self._batch_size]
-
-                #call forward pass
-                y_hat, cache = self.forward(X_batch) #transpose y_hat?
-
-                #calculate loss for training set
-                if self._loss_func == 'binary_cross_entropy':
-                    epoch_loss_train += self._binary_cross_entropy(y_batch, y_hat)
-                elif self._loss_func == 'mean_squared_error':
-                    epoch_loss_train += self._mean_squared_error(y_batch, y_hat)
-                else:
-                    raise ValueError("Loss function not supported")
-                
-                #call backprop
-                grad_dict = self.backprop(y_batch, y_hat, cache)
-                print("done with backprop")
-
-                #update params
-                self._update_params(grad_dict)
-                print("done with update params")
-
-
-            #calculate loss for epoch
-            per_epoch_loss_train.append(epoch_loss_train/ (m / self._batch_size))
-
-            #call forward pass for validation set
-            #debugging
-            print("at forward pass for validation set")
-            y_hat_val, cache_val = self.forward(X_val) #don't need cache for validation set
-
-            #calculate loss for validation set
-            if self._loss_func == 'binary_cross_entropy':
-                epoch_loss_val = self._binary_cross_entropy(y_val, y_hat_val)
-            elif self._loss_func == 'mean_squared_error':
-                epoch_loss_val = self._mean_squared_error(y_val, y_hat_val)
-            else:
-                raise ValueError("Loss function not supported")
-            
-            #store loss for validation set
-            per_epoch_loss_val.append(epoch_loss_val)
-        '''
         return per_epoch_loss_train, per_epoch_loss_val
 
         pass
@@ -643,7 +542,7 @@ class NeuralNetwork:
             nl_transform: ArrayLike
                 Activation function output.
         """
-        return np.maximum(0, Z)
+        return np.maximum(Z,0)
         pass
 
     def _relu_backprop(self, dA: ArrayLike, Z: ArrayLike) -> ArrayLike:
@@ -660,7 +559,11 @@ class NeuralNetwork:
             dZ: ArrayLike
                 Partial derivative of current layer Z matrix.
         """
-        return np.where(Z > 0, dA, 0)
+        #I 
+        return dA * (Z > 0).astype(np.float64)
+        #return np.where(Z > 0, dA, 0)
+    
+
         pass
 
     def _binary_cross_entropy(self, y: ArrayLike, y_hat: ArrayLike) -> float:
@@ -679,7 +582,9 @@ class NeuralNetwork:
         """
         y_zero_loss = y * np.log(y_hat + 1e-9)
         y_one_loss = (1 - y) * np.log(1 - y_hat + 1e-9)
-        #return np.mean(-1 * y * np.log(y_hat) - (1 - y) * np.log(1 - y_hat)).item() #might be diff?
+
+        #I
+        return np.mean(-1 * y * np.log(y_hat) - (1 - y) * np.log(1 - y_hat)).item() 
         return -np.mean(y_zero_loss + y_one_loss)
     
     
@@ -708,6 +613,9 @@ class NeuralNetwork:
         # ensure that y has the same shape as y_hat (batch_size, 1)
         if y.ndim == 1:  # If y is a 1D array, reshape it to (batch_size, 1)
             y = y[:, np.newaxis]  # Reshape y to (batch_size, 1)
+
+        y = np.asarray(y, dtype=np.float64)
+        y_hat = np.asarray(y_hat, dtype=np.float64)
 
         #dA =  - y / y_hat + (1 - y) / (1 - y_hat)
 
@@ -740,15 +648,16 @@ class NeuralNetwork:
         print(f"shapes in mean squared error, y, y_hat")
         print(f"y shape: {y.shape} # (batch_size, output_neuron)")
         print(f"y_hat shape: {y_hat.shape} # (batch_size, output_neuron)")
-        
 
+        
         #m = y_hat.shape[1] # sample number #switched to y_hat
         #return np.sum((y - y_hat) ** 2) / m 
 
         #could test
         #return np.mean(np.sum((y_hat - y) ** 2, axis=1)).item()
 
-        return np.sum((y - y_hat) ** 2) 
+
+        return np.mean(np.sum((y - y_hat) ** 2, axis=1))
 
         pass
 
@@ -766,9 +675,16 @@ class NeuralNetwork:
             dA: ArrayLike
                 partial derivative of loss with respect to A matrix.
         """
-        #m = y_hat.shape[1] # sample number  #switched to y_hat
-        #need m? 
+        #m = y_hat.shape[1] # sample number 
+     
         #return (2 / m) * ( y_hat - y)
+
+        print(f"shapes in mean squared error, y, y_hat")
+        print(f"y shape: {y.shape} # (batch_size, output_neuron)")
+        print(f"y_hat shape: {y_hat.shape} # (batch_size, output_neuron)")
+
+
+
         return (2 *( y_hat - y))
      
         pass
