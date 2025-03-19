@@ -10,7 +10,7 @@ import pytest
 def test_single_forward():
 
     #create a simple neural network with one layer 
-    nn_arch = [{"input_dim": 4, "output_dim": 3, "activation": "relu"}]
+    nn_arch = [{"input_dim": 4, "output_dim": 4, "activation": "relu"}]
     test_model  = nn(
     nn_arch=nn_arch,
     lr=0.01,           # learning rate
