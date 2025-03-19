@@ -84,7 +84,20 @@ def one_hot_encode_seqs(seq_arr: List[str]) -> ArrayLike:
 
     # encode sequences
     encodings = []
+
+    '''
+    
     for seq in seq_arr:
         encodings.append([encoding_dict[base] for base in seq])
+        return np.array(encodings).flatten()
+  
+    '''
+    for seq in seq_arr:
+        encoded_seq = np.concatenate([encoding_dict[base] for base in seq])  # flatten the encoding
+        encodings.append(encoded_seq)
     
-    return np.array(encodings).flatten()
+    return np.array(encodings)  # shape is num_samples, seq_length * 4) 
+
+    
+   
+    
