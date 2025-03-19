@@ -276,7 +276,7 @@ class NeuralNetwork:
         else:
             raise ValueError("Activation function not supported")
         
-        dZ_curr = dA_curr * activation_backprop(dA_curr,Z_curr) 
+        dZ_curr = activation_backprop(dA_curr,Z_curr) 
         
         #calculate dW_curr
         #dW_curr = np.dot(dZ_curr, A_prev.T) / m  

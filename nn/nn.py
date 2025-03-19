@@ -175,6 +175,7 @@ class NeuralNetwork:
         print(f"shapes in forward pass, before calling single forward pass:")
         print(f"X shape: {X.shape} # (batch_size, feature_num)")
 
+
         #loop through each layer
         for idx, layer in enumerate(self.arch):
             layer_idx = idx + 1
@@ -356,6 +357,8 @@ class NeuralNetwork:
             grad_dict["b" + str(layer_idx)] = db_curr #stored as b isntead of db
 
             dA_curr = dA_prev
+
+        #last layer
 
             
         return grad_dict
@@ -584,7 +587,7 @@ class NeuralNetwork:
         y_one_loss = (1 - y) * np.log(1 - y_hat + 1e-9)
 
         #I
-        return np.mean(-1 * y * np.log(y_hat) - (1 - y) * np.log(1 - y_hat)).item() 
+        return np.mean( -1 * y * np.log(y_hat) - (1 - y) * np.log(1 - y_hat)).item() 
         return -np.mean(y_zero_loss + y_one_loss)
     
     
@@ -611,15 +614,17 @@ class NeuralNetwork:
 
         #testing
         # ensure that y has the same shape as y_hat (batch_size, 1)
-        if y.ndim == 1:  # If y is a 1D array, reshape it to (batch_size, 1)
-            y = y[:, np.newaxis]  # Reshape y to (batch_size, 1)
+        #if y.ndim == 1:  # If y is a 1D array, reshape it to (batch_size, 1)
+            #y = y[:, np.newaxis]  # Reshape y to (batch_size, 1)
+        #probably incorrect, reshape y/y_hat?
 
-        y = np.asarray(y, dtype=np.float64)
-        y_hat = np.asarray(y_hat, dtype=np.float64)
+        y = y.astype(float)
+        y_hat = y_hat.astype(float) 
 
-        #dA =  - y / y_hat + (1 - y) / (1 - y_hat)
 
-        return - ((y / y_hat) - ((1 - y) / (1 - y_hat)))
+        dA =  - y / y_hat + (1 - y) / (1 - y_hat)
+
+        #return (- y / y_hat) - ((1 - y) / (1 - y_hat))
 
         #debugging
         print(f"shapes in binary cross entropy backprop, dA")
@@ -649,6 +654,10 @@ class NeuralNetwork:
         print(f"y shape: {y.shape} # (batch_size, output_neuron)")
         print(f"y_hat shape: {y_hat.shape} # (batch_size, output_neuron)")
 
+        y = y.astype(float)
+        y_hat = y_hat.astype(float) 
+
+
         
         #m = y_hat.shape[1] # sample number #switched to y_hat
         #return np.sum((y - y_hat) ** 2) / m 
@@ -656,8 +665,15 @@ class NeuralNetwork:
         #could test
         #return np.mean(np.sum((y_hat - y) ** 2, axis=1)).item()
 
+         # ensure that y has the same shape as y_hat (batch_size, 1)
+        #if y.ndim == 1:  # If y is a 1D array, reshape it to (batch_size, 1)
+            #y = y[:, np.newaxis]  # Reshape y to (batch_size, 1)
 
-        return np.mean(np.sum((y - y_hat) ** 2, axis=1))
+        #this is probably incorrect, reshape y/y_hat 
+
+
+        return np.mean(np.sum((y_hat - y ) ** 2, axis=1))
+    
 
         pass
 
@@ -683,8 +699,16 @@ class NeuralNetwork:
         print(f"y shape: {y.shape} # (batch_size, output_neuron)")
         print(f"y_hat shape: {y_hat.shape} # (batch_size, output_neuron)")
 
+        # ensure that y has the same shape as y_hat (batch_size, 1)
+        #if y.ndim == 1:  # If y is a 1D array, reshape it to (batch_size, 1)
+            #y = y[:, np.newaxis]  # Reshape y to (batch_size, 1)
+
+       #this is probably incorrect, reshape y/y_hat
+
+        y = y.astype(float)
+        y_hat = y_hat.astype(float) 
 
 
-        return (2 *( y_hat - y))
+        return (2 * (y_hat - y))
      
         pass
