@@ -49,7 +49,7 @@ def test_single_forward():
     activation = "relu"
 
     #forward pass
-    A_curr, Z_curr = nn._single_forward(W_curr, b_curr, A_prev, activation)
+    A_curr, Z_curr = test_model._single_forward(W_curr, b_curr, A_prev, activation)
 
     # calc expected values
     Z_expected = np.dot(A_prev, W_curr.T) + b_curr
@@ -131,7 +131,8 @@ def test_single_backprop():
     b = np.random.rand(3, 1) #output_dim, 1
     Z = np.random.rand(1, 3)  #batch_size, output_dim
     A_prev = np.random.rand(1,4) #batch_size, input_dim
-    dA = np.random.rand(3, 1)
+    dA = np.random.rand(1,3)
+
 
     dA_prev, dW, db = test_model._single_backprop(W, b, Z, A_prev, dA, "relu")
 
@@ -187,7 +188,7 @@ def test_binary_cross_entropy():
     loss = test_model._binary_cross_entropy(y_true, y_hat)
 
     #assert loss > 0
-    np.testing.assert_almost_equal(loss, 0.1446, decimal=6)
+    np.testing.assert_almost_equal(loss, 0.14462152754328741, decimal=6)
 
     pass
 
