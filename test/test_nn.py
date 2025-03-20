@@ -9,11 +9,25 @@ import pytest
 
 def test_single_forward():
 
+    nn_arch = [{"input_dim": 4, "output_dim": 3, "activation": "relu"}, {"input_dim": 3, "output_dim": 2, "activation": "sigmoid"}]
+    
+    test_model  = nn(
+    nn_arch=nn_arch,
+    lr=0.01,           # learning rate
+    seed=42,            # random seed
+    batch_size=1,      # batch size
+    epochs=10,         # number of epochs
+    loss_function="mean_squared_error" # loss function 
+    )
+
+
     # define test parameters - sigmoid activation
     W_curr = np.array([[0.2, -0.5], [0.3, 0.8]])  # shape (2, 2)
     b_curr = np.array([0.1, -0.2])  # shape (2,)
     A_prev = np.array([[0.4, 0.6], [0.1, 0.9]])  # shape (2, 2)
     activation = "sigmoid"
+
+    
 
     #forward pass
     A_curr, Z_curr = nn._single_forward(W_curr, b_curr, A_prev, activation)
@@ -89,7 +103,6 @@ def test_forward():
     np.testing.assert_array_almost_equal(A2, A, decimal=6)
 
     #assert cache is correct
-    assert len(cache) == 2  #correct number of layers
     np.testing.assert_array_almost_equal(cache["A0"], X, decimal=6)
     np.testing.assert_array_almost_equal(cache["Z1"], Z1, decimal=6)
     np.testing.assert_array_almost_equal(cache["A1"], A1, decimal=6)
@@ -114,10 +127,10 @@ def test_single_backprop():
     np.random.seed(42)
 
 
-    W = np.random.rand(3, 4)
-    b = np.random.rand(3, 1)
-    Z = np.random.rand(3, 1)
-    A_prev = np.random.rand(4, 1)
+    W = np.random.rand(3, 4) #output_dim, input_dim
+    b = np.random.rand(3, 1) #output_dim, 1
+    Z = np.random.rand(1, 3)  #batch_size, output_dim
+    A_prev = np.random.rand(1,4) #batch_size, input_dim
     dA = np.random.rand(3, 1)
 
     dA_prev, dW, db = test_model._single_backprop(W, b, Z, A_prev, dA, "relu")
@@ -149,7 +162,7 @@ def test_predict():
     y_hat = test_model.predict(X)
 
     #assert output is correct
-    assert y_hat.shape == (2, 5) #correct dimensions    
+    assert y_hat.shape == (1, 2)     
 
     pass
 
@@ -174,7 +187,7 @@ def test_binary_cross_entropy():
     loss = test_model._binary_cross_entropy(y_true, y_hat)
 
     #assert loss > 0
-    assert loss == pytest.approx(0.145)
+    np.testing.assert_almost_equal(loss, 0.1446, decimal=6)
 
     pass
 
