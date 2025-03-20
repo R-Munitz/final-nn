@@ -137,9 +137,9 @@ def test_single_backprop():
     dA_prev, dW, db = test_model._single_backprop(W, b, Z, A_prev, dA, "relu")
 
     #assert output is correct
-    assert dA.shape == (1, 3) #correct dimensions
-    assert dW.shape == (3, 4) #correct dimensions
-    assert db.shape == (3, 1) #correct dimensions
+    assert dA.shape == (1, 3) 
+    assert dW.shape == (3, 4) 
+    assert db.shape == (1, 3) 
         
     pass
 
