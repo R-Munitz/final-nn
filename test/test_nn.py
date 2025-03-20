@@ -9,58 +9,100 @@ import pytest
 
 def test_single_forward():
 
-    #create a simple neural network with one layer 
-    nn_arch = [{"input_dim": 4, "output_dim": 4, "activation": "relu"}]
-    test_model  = nn(
-    nn_arch=nn_arch,
-    lr=0.01,           # learning rate
-    seed=42,            # random seed
-    batch_size=1,      # batch size
-    epochs=10,         # number of epochs
-    loss_function="mse" # loss function 
-    )
+    # define test parameters - sigmoid activation
+    W_curr = np.array([[0.2, -0.5], [0.3, 0.8]])  # shape (2, 2)
+    b_curr = np.array([0.1, -0.2])  # shape (2,)
+    A_prev = np.array([[0.4, 0.6], [0.1, 0.9]])  # shape (2, 2)
+    activation = "sigmoid"
 
-    W = np.array([[0.2, 0.5, -0.3], 
-              [0.8, 0.4, -0.7], 
-              [0.1, 0.3, -0.6], 
-              [0.2, 0.9, -0.4]])
-    
-    b = np.array([[0.1], [-0.2], [0.3]])
-    A_prev = np.array([[0.5], [-0.5], [0.2], [0.1]])
+    #forward pass
+    A_curr, Z_curr = nn._single_forward(W_curr, b_curr, A_prev, activation)
 
-    A, Z = test_model._single_forward(W, b, A_prev, "relu")
+    # calc expected values
+    Z_expected = np.dot(A_prev, W_curr.T) + b_curr
+    A_expected = 1 / (1 + np.exp(-Z_expected))  # sigmoid activation
+
+    #assert output shapes are correct
+    assert Z_curr.shape == (2, 2)  # correct dimensions
+    assert A_curr.shape == (2, 2)  # correct dimensions
 
 
-    #assert output is correct
-    assert Z.shape == (3, 1) #correct dimensions
-    assert A.shape == (3, 1) #correct dimensions
-    assert (A>=0).all() # relu is non negative
-    assert np.allclose(A, np.array([[0.0], [0.4], [0.04]])) # correct values
-    
+    # assert output matches expected values
+    np.testing.assert_array_almost_equal(Z_curr, Z_expected, decimal=6)
+    np.testing.assert_array_almost_equal(A_curr, A_expected, decimal=6)
+
+    #test relu activation
+    activation = "relu"
+
+    #forward pass
+    A_curr, Z_curr = nn._single_forward(W_curr, b_curr, A_prev, activation)
+
+    # calc expected values
+    Z_expected = np.dot(A_prev, W_curr.T) + b_curr
+    A_expected = np.maximum(0, Z_expected)  # relu activation
+
+    #assert output shapes are correct
+    assert Z_curr.shape == (2, 2)  # correct dimensions
+    assert A_curr.shape == (2, 2)  # correct dimensions
+
+    # assert output matches expected values
+    np.testing.assert_array_almost_equal(Z_curr, Z_expected, decimal=6)
+    np.testing.assert_array_almost_equal(A_curr, A_expected, decimal=6)
+
     pass
 
 def test_forward():
     nn_arch = [{"input_dim": 4, "output_dim": 3, "activation": "relu"}, {"input_dim": 3, "output_dim": 2, "activation": "sigmoid"}]
+    
     test_model  = nn(
     nn_arch=nn_arch,
     lr=0.01,           # learning rate
     seed=42,            # random seed
     batch_size=1,      # batch size
     epochs=10,         # number of epochs
-    loss_function="mse" # loss function 
+    loss_function="mean_squared_error" # loss function 
     )
 
-    X = np.random.randn(4, 5) #4 features, batch size of 5
-    A_last, cache = test_model.forward(X)
+    test_model._param_dict = {
+    "W1": np.array([[0.2, -0.5], [0.3, 0.8], [-0.7, 0.1]]),  # Shape (3,2)
+    "b1": np.array([0.1, -0.2, 0.3]),  # Shape (3,)
+    "W2": np.array([[0.5, -0.3, 0.7]]),  # Shape (1,3)
+    "b2": np.array([-0.1]),  # Shape (1,)
+    }
+
+    #intialize input (batch size =2, features=2)
+    X = np.array([[0.4, 0.6], [0.1, 0.9]])
+
+    #forward pass
+    A, cache = test_model.forward(X)
+
+    #manually calculate expected output
+    #layer 1
+    Z1 = np.dot(X, test_model._param_dict["W1"].T) + test_model._param_dict["b1"]
+    A1 = np.maximum(0, Z1)  # relu activation
+
+    #layer 2
+    Z2 = np.dot(A1, test_model._param_dict["W2"].T) + test_model._param_dict["b2"]
+    A2 = 1 / (1 + np.exp(-Z2))  # sigmoid activation
 
     #assert output is correct
-    assert A_last.shape == (2, 5) #correct dimensions
-    assert (A_last >= 0).all() and (A_last <= 1).all()  # assert igmoid output is between 0 and 1
+    assert A2.shape == (2, 1) #correct dimensions
+    np.testing.assert_array_almost_equal(A2, A, decimal=6)
+
+    #assert cache is correct
+    assert len(cache) == 2  #correct number of layers
+    np.testing.assert_array_almost_equal(cache["A0"], X, decimal=6)
+    np.testing.assert_array_almost_equal(cache["Z1"], Z1, decimal=6)
+    np.testing.assert_array_almost_equal(cache["A1"], A1, decimal=6)
+    np.testing.assert_array_almost_equal(cache["Z2"], Z2, decimal=6)
+    np.testing.assert_array_almost_equal(cache["A2"], A2, decimal=6)
 
     pass
 
+
 def test_single_backprop():
     nn_arch = [{"input_dim": 4, "output_dim": 3, "activation": "relu"}]
+    
     test_model  = nn(
     nn_arch=nn_arch,
     lr=0.01,           # learning rate
@@ -69,6 +111,10 @@ def test_single_backprop():
     epochs=10,         # number of epochs
     loss_function="mse" # loss function 
     )
+
+    #random seed
+    np.random.seed(42)
+
 
     W = np.random.rand(3, 4)
     b = np.random.rand(3, 1)
@@ -76,7 +122,7 @@ def test_single_backprop():
     A_prev = np.random.rand(4, 1)
     dA = np.random.rand(3, 1)
 
-    dA, dW, db = test_model._single_backprop(W, b, Z, A_prev, dA, "relu")
+    dA_prev, dW, db = test_model._single_backprop(W, b, Z, A_prev, dA, "relu")
 
     #assert output is correct
     assert dA.shape == (4, 1) #correct dimensions
