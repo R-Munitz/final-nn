@@ -112,24 +112,9 @@ class NeuralNetwork:
         # Z (l+1) = W(l) * A(l) + b(l)
         # A (l+1) = activation(Z(l+1))
 
-        #debugging
-        print(f"shapes in single forward pass, W_curr, A_prev, b_curr")
-        print(f"W_curr shape: {W_curr.shape} # (output_neuron, features/input neuron)")
-        print(f"A_prev shape: {A_prev.shape} # (batch_size, feature_num/input neuron)")
-        print(f"b_curr shape: {b_curr.shape} # (output_neuron, )") 
-
-
         #calculate Z_curr
         Z_curr = np.dot(A_prev, W_curr.T) + b_curr.T 
 
-        #I
-        #Z_curr = W_curr @ A_prev + b_curr 
-
-       
-        #debugging
-        print(f"shapes in single forward pass, after Z_curr calc, before activation func, Z_curr")
-        print(f"Z_curr shape: {Z_curr.shape} # (batch_size, output_neuron)")
-       
 
         # call activation function
         if activation == 'sigmoid':
@@ -139,16 +124,9 @@ class NeuralNetwork:
         else:
             raise ValueError("Activation function not supported")
 
-        #debugging
-        print(f"shapes in single forward pass, after Z_curr calc, and activation func, Z_curr, A_curr")
-        print(f"Z_curr shape: {Z_curr.shape} # (batch_size, output_neuron)")
-        print(f"A_curr shape: {A_curr.shape} # (batch_size, output_neuron)")
-
 
         return A_curr, Z_curr
     
-    
-        pass
 
     def forward(self, X: ArrayLike) -> Tuple[ArrayLike, Dict[str, ArrayLike]]:
         """
@@ -171,10 +149,6 @@ class NeuralNetwork:
         A_curr = X
         cache['A0'] = A_curr
 
-        #debugging
-        print(f"shapes in forward pass, before calling single forward pass:")
-        print(f"X shape: {X.shape} # (batch_size, feature_num)")
-
 
         #loop through each layer
         for idx, layer in enumerate(self.arch):
@@ -184,17 +158,10 @@ class NeuralNetwork:
             b_curr = self._param_dict['b' + str(layer_idx)] 
             activation = layer['activation']
 
-            #debugging
-            print(f"current A_prev, right before single pass call {layer_idx}")
-            print(f"A_prev shape: {A_curr.shape} # (batch_size, feature_num)")
             
             #call single forward pass
-            A, Z = self._single_forward(W_curr, b_curr, A_curr, activation)  #testing, changed from A_prev to A_curr
+            A, Z = self._single_forward(W_curr, b_curr, A_curr, activation)  
 
-            #debugging
-            print(f"shapes in forward pass, after calling single forward pass, A, Z")
-            print(f"A shape: {A.shape} # (batch_size, output_neuron)")
-            print(f"Z shape: {Z.shape} # (batch_size, output_neuron)")
 
             #store Z and A in cache
             cache['Z' + str(layer_idx)] = Z
@@ -204,7 +171,6 @@ class NeuralNetwork:
 
         return A_curr, cache
     
-        pass
 
     def _single_backprop(
         self,
@@ -254,7 +220,6 @@ class NeuralNetwork:
 
       
 
-
         #calculate dZ_curr
         if activation_curr == 'sigmoid':
             dZ_curr = self._sigmoid_backprop(dA_curr, Z_curr)
@@ -266,32 +231,16 @@ class NeuralNetwork:
         #calculate dA_prev
         dA_prev = np.dot(dZ_curr, W_curr) 
 
-        #I
-        #dA_prev = W_curr.T @ dZ_curr
-
 
         #calculate dW_curr
-        dW_curr = np.dot(dZ_curr.T, A_prev) # works, correct shape
+        dW_curr = np.dot(dZ_curr.T, A_prev) 
 
-        #I
-        #dW_curr = np.dot(dZ_curr, A_prev.T) 
 
         #calculate db_curr
         db_curr = np.sum(dZ_curr, axis=0, keepdims=True) 
 
-        #I
-        #db_curr = dZ_curr
-
-        #debugging
-        print(f"shapes at the end of single backprop:")
-        print(f"dA_prev {dA_prev.shape} # (batch_size, feature_num)")
-        print(f"dW_curr {dW_curr.shape} # (output_neuron, feature_num)")
-        print(f"db_curr {db_curr.shape} # (output_neuron, )")
-
-
         return dA_prev, dW_curr, db_curr
     
-        pass
 
     def backprop(self, y: ArrayLike, y_hat: ArrayLike, cache: Dict[str, ArrayLike]):
         """
@@ -313,11 +262,6 @@ class NeuralNetwork:
         #initialize grad_dict
         grad_dict = {}
 
-        #debugging
-        print(f"shapes in backprop, y, y_hat")
-        print(f"y shape: {y.shape} # (batch_size, output_neuron)")
-        print(f"y_hat shape: {y_hat.shape} # (batch_size, output_neuron)")
-
 
         #calculate loss gradient for output layer
         if self._loss_func == 'binary_cross_entropy':
@@ -327,16 +271,10 @@ class NeuralNetwork:
         else:
             raise ValueError("Loss function not supported")
 
-        #debugging
-        print(f"shapes in backprop, before loop, dA_prev")
-        print(f"dA_curr shape, calculated from loss gradient: {dA_curr.shape} # (batch_size, output_neuron)")
 
         #loop through each layer in reverse
         for idx, layer in reversed(list(enumerate(self.arch))):
             layer_idx = idx + 1
-
-            #debugging
-            print(f"current layer in backprop {layer_idx}")
            
             #get current Z, A, and activation function
             W_curr = self._param_dict['W' + str(layer_idx)]
@@ -345,9 +283,6 @@ class NeuralNetwork:
             A_prev = cache['A' + str(layer_idx-1)] 
             activation_curr = layer['activation']
                 
-            #debugging
-            print(f"Shape of dA_curr being passed to single backprop, before call {layer_idx}")
-            print(f"dA_curr shape: {dA_curr.shape} # (batch_size, output_neuron)")
 
             #call single backprop
             dA_prev, dW_curr, db_curr = self._single_backprop(W_curr, b_curr, Z_curr, A_prev, dA_curr, activation_curr)
@@ -357,13 +292,9 @@ class NeuralNetwork:
             grad_dict["b" + str(layer_idx)] = db_curr #stored as b isntead of db
 
             dA_curr = dA_prev
-
-        #last layer
-
             
         return grad_dict
    
-        pass
 
     def _update_params(self, grad_dict: Dict[str, ArrayLike]):
         """
@@ -378,19 +309,10 @@ class NeuralNetwork:
         for idx, layer in enumerate(self.arch):
             layer_idx = idx + 1
 
-            #debugging
-            print(f"current layer in update params: {layer_idx}")
-
             #uodate params
             self._param_dict[f"W{layer_idx}"] -= self._lr * np.mean(grad_dict[f"W{layer_idx}"], axis=0)
             self._param_dict[f"b{layer_idx}"] -= self._lr * np.mean((grad_dict[f"b{layer_idx}"].reshape(-1,1)), axis=0)
 
-            
-            #I
-            #self._param_dict[f"b{layer_idx}"] -= self._lr * np.mean((grad_dict[f"b{layer_idx}"]), axis=0)
-
-
-        pass
 
     def fit(
         self,
@@ -441,12 +363,6 @@ class NeuralNetwork:
                 #call forward pass
                 y_hat, cache = self.forward(X_train_batch)
 
-
-                #debugging
-                print("calling backprop")
-                print(f"y_train_batch shape: {y_train_batch.shape} # (batch_size, output_neuron)")
-                print(f"y_hat shape: {y_hat.shape} # (batch_size, output_neuron)")
-
                 #call backprop
                 grad_dict = self.backprop(y_train_batch, y_hat, cache)
 
@@ -457,11 +373,6 @@ class NeuralNetwork:
             y_train_pred = self.predict(X_train)
             y_val_pred = self.predict(X_val)
 
-            #debugging
-            print("Y_train_pred")
-            print(y_train_pred) 
-            print("Y_val_pred")
-            print(y_val_pred)
 
             if self._loss_func == 'binary_cross_entropy':
                 epoch_loss_train = self._binary_cross_entropy(y_train, y_train_pred)
@@ -478,7 +389,6 @@ class NeuralNetwork:
 
         return per_epoch_loss_train, per_epoch_loss_val
 
-        pass
 
     def predict(self, X: ArrayLike) -> ArrayLike:
         """
@@ -497,8 +407,6 @@ class NeuralNetwork:
         
         return y_hat
     
-        pass
-
     def _sigmoid(self, Z: ArrayLike) -> ArrayLike:
         """
         Sigmoid activation function.
@@ -512,7 +420,7 @@ class NeuralNetwork:
                 Activation function output.
         """
         return 1 / (1 + np.exp(-Z))
-        pass
+
 
     def _sigmoid_backprop(self, dA: ArrayLike, Z: ArrayLike):
         """
@@ -531,7 +439,6 @@ class NeuralNetwork:
         sigmoid_Z = self._sigmoid(Z)
         return (dA * (sigmoid_Z * (1 - sigmoid_Z)))
 
-        pass
 
     def _relu(self, Z: ArrayLike) -> ArrayLike:
         """
@@ -546,7 +453,6 @@ class NeuralNetwork:
                 Activation function output.
         """
         return np.maximum(Z,0)
-        pass
 
     def _relu_backprop(self, dA: ArrayLike, Z: ArrayLike) -> ArrayLike:
         """
@@ -562,12 +468,9 @@ class NeuralNetwork:
             dZ: ArrayLike
                 Partial derivative of current layer Z matrix.
         """
-        #I 
-        return dA * (Z > 0).astype(np.float64)
-        #return np.where(Z > 0, dA, 0)
-    
 
-        pass
+        return dA * (Z > 0).astype(np.float64)
+
 
     def _binary_cross_entropy(self, y: ArrayLike, y_hat: ArrayLike) -> float:
         """
@@ -583,15 +486,9 @@ class NeuralNetwork:
             loss: float
                 Average loss over mini-batch.
         """
-        y_zero_loss = y * np.log(y_hat + 1e-9)
-        y_one_loss = (1 - y) * np.log(1 - y_hat + 1e-9)
 
-        #I
         return np.mean( -1 * y * np.log(y_hat) - (1 - y) * np.log(1 - y_hat)).item() 
-        return -np.mean(y_zero_loss + y_one_loss)
-    
-    
-        pass
+
 
     def _binary_cross_entropy_backprop(self, y: ArrayLike, y_hat: ArrayLike) -> ArrayLike:
         """
@@ -607,32 +504,14 @@ class NeuralNetwork:
             dA: ArrayLike
                 partial derivative of loss with respect to A matrix.
         """
-        #debugging
-        print(f"shapes in binary cross entropy backprop, y, y_hat")
-        print(f"y shape: {y.shape} # (batch_size, output_neuron)")
-        print(f"y_hat shape: {y_hat.shape} # (batch_size, output_neuron)")
-
-        #testing
-        # ensure that y has the same shape as y_hat (batch_size, 1)
-        #if y.ndim == 1:  # If y is a 1D array, reshape it to (batch_size, 1)
-            #y = y[:, np.newaxis]  # Reshape y to (batch_size, 1)
-        #probably incorrect, reshape y/y_hat?
 
         y = y.astype(float)
         y_hat = y_hat.astype(float) 
 
-
         dA =  - y / y_hat + (1 - y) / (1 - y_hat)
 
-        #return (- y / y_hat) - ((1 - y) / (1 - y_hat))
-
-        #debugging
-        print(f"shapes in binary cross entropy backprop, dA")
-        print(f"dA shape: {dA.shape} # (batch_size, output_neuron)")
-
         return dA
-   
-        pass
+
 
     def _mean_squared_error(self, y: ArrayLike, y_hat: ArrayLike) -> float:
         """
@@ -649,33 +528,13 @@ class NeuralNetwork:
                 Average loss of mini-batch.
         """
 
-        #debugging
-        print(f"shapes in mean squared error, y, y_hat")
-        print(f"y shape: {y.shape} # (batch_size, output_neuron)")
-        print(f"y_hat shape: {y_hat.shape} # (batch_size, output_neuron)")
-
         y = y.astype(float)
         y_hat = y_hat.astype(float) 
-
-
-        
-        #m = y_hat.shape[1] # sample number #switched to y_hat
-        #return np.sum((y - y_hat) ** 2) / m 
-
-        #could test
-        #return np.mean(np.sum((y_hat - y) ** 2, axis=1)).item()
-
-         # ensure that y has the same shape as y_hat (batch_size, 1)
-        #if y.ndim == 1:  # If y is a 1D array, reshape it to (batch_size, 1)
-            #y = y[:, np.newaxis]  # Reshape y to (batch_size, 1)
-
-        #this is probably incorrect, reshape y/y_hat 
 
 
         return np.mean(np.sum((y_hat - y ) ** 2, axis=1))
     
 
-        pass
 
     def _mean_squared_error_backprop(self, y: ArrayLike, y_hat: ArrayLike) -> ArrayLike:
         """
@@ -691,24 +550,10 @@ class NeuralNetwork:
             dA: ArrayLike
                 partial derivative of loss with respect to A matrix.
         """
-        #m = y_hat.shape[1] # sample number 
-     
-        #return (2 / m) * ( y_hat - y)
-
-        print(f"shapes in mean squared error, y, y_hat")
-        print(f"y shape: {y.shape} # (batch_size, output_neuron)")
-        print(f"y_hat shape: {y_hat.shape} # (batch_size, output_neuron)")
-
-        # ensure that y has the same shape as y_hat (batch_size, 1)
-        #if y.ndim == 1:  # If y is a 1D array, reshape it to (batch_size, 1)
-            #y = y[:, np.newaxis]  # Reshape y to (batch_size, 1)
-
-       #this is probably incorrect, reshape y/y_hat
 
         y = y.astype(float)
         y_hat = y_hat.astype(float) 
 
 
         return (2 * (y_hat - y))
-     
-        pass
+    

@@ -37,8 +37,8 @@ def test_single_forward():
     A_expected = 1 / (1 + np.exp(-Z_expected))  # sigmoid activation
 
     #assert output shapes are correct
-    assert Z_curr.shape == (2, 2)  # correct dimensions
-    assert A_curr.shape == (2, 2)  # correct dimensions
+    assert Z_curr.shape == (2, 2)  
+    assert A_curr.shape == (2, 2) 
 
 
     # assert output matches expected values
@@ -56,8 +56,8 @@ def test_single_forward():
     A_expected = np.maximum(0, Z_expected)  # relu activation
 
     #assert output shapes are correct
-    assert Z_curr.shape == (2, 2)  # correct dimensions
-    assert A_curr.shape == (2, 2)  # correct dimensions
+    assert Z_curr.shape == (2, 2)  
+    assert A_curr.shape == (2, 2)
 
     # assert output matches expected values
     np.testing.assert_array_almost_equal(Z_curr, Z_expected, decimal=6)
@@ -78,10 +78,10 @@ def test_forward():
     )
 
     test_model._param_dict = {
-    "W1": np.array([[0.2, -0.5], [0.3, 0.8], [-0.7, 0.1]]),  # Shape (3,2)
-    "b1": np.array([0.1, -0.2, 0.3]),  # Shape (3,)
-    "W2": np.array([[0.5, -0.3, 0.7]]),  # Shape (1,3)
-    "b2": np.array([-0.1]),  # Shape (1,)
+    "W1": np.array([[0.2, -0.5], [0.3, 0.8], [-0.7, 0.1]]),  
+    "b1": np.array([0.1, -0.2, 0.3]),  
+    "W2": np.array([[0.5, -0.3, 0.7]]),  
+    "b2": np.array([-0.1]),
     }
 
     #intialize input (batch size =2, features=2)
@@ -261,7 +261,7 @@ def test_mean_squared_error_backprop():
     dA = test_model._mean_squared_error_backprop(y_true, y_hat)
 
     #assert output is correct
-    assert dA.shape == y_true.shape  #correct dimensions
+    assert dA.shape == y_true.shape  
 
     pass
 
