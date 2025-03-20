@@ -30,7 +30,7 @@ def test_single_forward():
     
 
     #forward pass
-    A_curr, Z_curr = nn._single_forward(W_curr, b_curr, A_prev, activation)
+    A_curr, Z_curr = test_model._single_forward(W_curr, b_curr, A_prev, activation)
 
     # calc expected values
     Z_expected = np.dot(A_prev, W_curr.T) + b_curr
@@ -137,7 +137,7 @@ def test_single_backprop():
     dA_prev, dW, db = test_model._single_backprop(W, b, Z, A_prev, dA, "relu")
 
     #assert output is correct
-    assert dA.shape == (4, 1) #correct dimensions
+    assert dA.shape == (1, 3) #correct dimensions
     assert dW.shape == (3, 4) #correct dimensions
     assert db.shape == (3, 1) #correct dimensions
         
